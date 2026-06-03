@@ -83,9 +83,22 @@ namespace MapApi.Services
                 return false;
             }
 
-            var geometry = _geoJsonReader.Read<Geometry>(updateGeometryDto.GeoJson); //GeoJSON formatındaki veriyi Geometry nesnesine dönüştürmek için GeoJsonReader kullanıyoruz
+            if (updateGeometryDto.Name != null)
+            {
+                entity.Name = updateGeometryDto.Name;
+            }
+            if (updateGeometryDto.Description != null)
+            {
+                entity.Description = updateGeometryDto.Description;
+            }
 
-            entity.Geometry = geometry;
+            if (!string.IsNullOrWhiteSpace(updateGeometryDto.GeoJson))
+            {
+                var geometry = _geoJsonReader.Read<Geometry>(updateGeometryDto.GeoJson); //GeoJSON formatındaki veriyi Geometry nesnesine dönüştürmek için GeoJsonReader kullanıyoruz
+                geometry.SRID = 4326;
+                entity.Geometry = geometry;
+            }
+            
             await _context.SaveChangesAsync();
 
             return true;    

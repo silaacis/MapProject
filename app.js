@@ -1,6 +1,9 @@
+﻿// HARITA VE KATMAN AYARLARI
 const map = L.map('map').setView([40.1885, 29.0610], 13);
 
 let currentLayer = null;
+let editingGeometryId = null;
+let editingLayer = null;
 
 const osmLayer = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
@@ -30,16 +33,17 @@ map.addLayer(drawnItems);
 
 const baseLayers = {
     "OpenStreetMap": osmLayer,
-    "Uydu Goruntusu": satelliteLayer
+    "Uydu Görüntüsü": satelliteLayer
 };
 
 const overlayLayers = {
-    "WMS Katmani": wmsLayer,
-    "Cizimler": drawnItems
+    "WMS Katmanı": wmsLayer,
+    "Çizimler": drawnItems
 };
 
 L.control.layers(baseLayers, overlayLayers).addTo(map);
 
+// LEAFLET DRAW AYARLARI
 const drawControl = new L.Control.Draw({
     edit: {
         featureGroup: drawnItems
@@ -48,6 +52,7 @@ const drawControl = new L.Control.Draw({
 
 map.addControl(drawControl);
 
+// YENİ GEOMETRİ ÇİZİMİ
 map.on(L.Draw.Event.CREATED, function (e) {
     currentLayer = e.layer;
     drawnItems.addLayer(currentLayer);
@@ -55,15 +60,46 @@ map.on(L.Draw.Event.CREATED, function (e) {
     document.getElementById("geometryForm").style.display = "block";
 });
 
+// GEOMETRİ KAYDETME
 document.getElementById("saveGeometry")
     .addEventListener("click", async function () {
+        if (editingGeometryId) {
+            const name = document.getElementById("geometryName").value;
+
+            if (!name) {
+                alert("Geometri adı zorunludur.");
+                return;
+            }
+
+            const description = document.getElementById("geometryDescription").value;
+
+            const response = await fetch(`https://localhost:7220/api/geometries/${editingGeometryId}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    name: name,
+                    description: description
+                })
+            });
+
+            if (response.ok) {
+                alert("Geometri bilgileri güncellendi.");
+                location.reload();
+            } else {
+                alert("Guncelleme basarisiz oldu.");
+            }
+
+            return;
+        }
 
         if (!currentLayer) return;
 
         const name = document.getElementById("geometryName").value;
 
         if (!name) {
-            alert("Geometri ad� zorunludur.");
+            alert("Geometri adı zorunludur.");
             return;
         }
 
@@ -102,6 +138,7 @@ document.getElementById("saveGeometry")
         currentLayer = null;
     });
 
+// GEOMETRİ EKLEME İPTAL
 document.getElementById("cancelGeometry")
     .addEventListener("click", function () {
 
@@ -116,6 +153,8 @@ document.getElementById("cancelGeometry")
         document.getElementById("geometryDescription").value = "";
     });
 
+
+// VERİTABANINDAN GEOMETRİLERİ YÜKLEME
 async function loadGeometries() {
     const response = await fetch("https://localhost:7220/api/geometries");
 
@@ -132,6 +171,7 @@ async function loadGeometries() {
                 layer.bindPopup(`
                     <b>${item.name}</b><br>
                     ${item.description ?? ""}<br><br>
+                    <button onclick="openEditForm(${item.id}, '${item.name}', '${item.description ?? ""}')">Duzenle</button>
                     <button onclick="deleteGeometry(${item.id})">Sil</button>
                 `);
 
@@ -140,7 +180,16 @@ async function loadGeometries() {
         });
     });
 }
+function openEditForm(id, name, description) {
+    editingGeometryId = id;
 
+    document.getElementById("geometryName").value = name;
+    document.getElementById("geometryDescription").value = description;
+
+    document.getElementById("geometryForm").style.display = "block";
+}
+
+// GEOMETRİ SİLME
 async function deleteGeometry(id) {
     const confirmed = confirm("Bu geometri silinsin mi?");
 
@@ -154,12 +203,11 @@ async function deleteGeometry(id) {
         alert("Geometri silindi.");
         location.reload();
     } else {
-        alert("Silme i�lemi ba�ar�s�z oldu.");
+        alert("Silme işlemi başarısız oldu.");
     }
 }
 
-loadGeometries();
-
+// GEOMETRİK DÜZENLEME (EDIT)
 map.on(L.Draw.Event.EDITED, async function (e) {
 
     const layers = e.layers;
@@ -184,6 +232,8 @@ map.on(L.Draw.Event.EDITED, async function (e) {
                 })
             });
 
-        console.log(`Geometri ${geometryId} g�ncellendi`);
+        console.log(`Geometri ${geometryId} güncellendi`);
     });
 });
+
+loadGeometries();
