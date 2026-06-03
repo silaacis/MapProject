@@ -1,0 +1,56 @@
+﻿html,
+body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+
+#map {
+    width: 100%;
+    height: 100vh;
+}
+
+.form-panel {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 280px;
+    background: white;
+    padding: 16px;
+    z-index: 1000;
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+    display: none;
+    font-family: Arial, sans-serif;
+}
+
+.form-panel h3 {
+    margin-top: 0;
+    font-size: 18px;
+}
+
+.form-panel label {
+    display: block;
+    margin-top: 10px;
+    font-size: 14px;
+}
+
+.form-panel input,
+.form-panel textarea {
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 4px;
+    padding: 8px;
+}
+
+.form-buttons {
+    margin-top: 12px;
+    display: flex;
+    gap: 8px;
+}
+
+.form-buttons button {
+    flex: 1;
+    padding: 8px;
+    cursor: pointer;
+}

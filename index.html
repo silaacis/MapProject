@@ -1,0 +1,38 @@
+﻿<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Map Project</title>
+
+    <link rel="stylesheet"
+          href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css" />
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="map"></div>
+
+    <div id="geometryForm" class="form-panel">
+        <h3>Geometri Bilgileri</h3>
+
+        <label>Ad</label>
+        <input type="text" id="geometryName" placeholder="Geometri adı">
+
+        <label>Açıklama</label>
+        <textarea id="geometryDescription" placeholder="Açıklama"></textarea>
+
+        <div class="form-buttons">
+            <button id="saveGeometry">Kaydet</button>
+            <button id="cancelGeometry">İptal</button>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
+    <script src="app.js"></script>
+
+</body>
+</html>
