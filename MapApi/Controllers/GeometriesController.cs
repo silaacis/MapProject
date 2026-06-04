@@ -51,5 +51,12 @@ namespace MapApi.Controllers
             }
             return NoContent();
         }
+
+        [HttpGet("{id}/contained")]
+        public async Task<IActionResult> GetContainedGeometries(int id)
+        {
+            var values = await _geometryService.GetContainedGeometriesAsync(id);
+            return Ok(values);  
+        }
     }
 }

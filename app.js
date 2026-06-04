@@ -3,7 +3,8 @@ const map = L.map('map').setView([40.1885, 29.0610], 13);
 
 let currentLayer = null;
 let editingGeometryId = null;
-let editingLayer = null;
+
+const geometryLayers = {};
 
 const osmLayer = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
@@ -88,7 +89,7 @@ document.getElementById("saveGeometry")
                 alert("Geometri bilgileri güncellendi.");
                 location.reload();
             } else {
-                alert("Guncelleme basarisiz oldu.");
+                alert("Güncelleme başarısız oldu.");
             }
 
             return;
@@ -157,7 +158,6 @@ document.getElementById("cancelGeometry")
 // VERİTABANINDAN GEOMETRİLERİ YÜKLEME
 async function loadGeometries() {
     const response = await fetch("https://localhost:7220/api/geometries");
-
     const geometries = await response.json();
 
     geometries.forEach(item => {
@@ -167,12 +167,17 @@ async function loadGeometries() {
             onEachFeature: function (feature, layer) {
 
                 layer.geometryId = item.id;
+                layer.geometryName = item.name;
+                layer.geometryDescription = item.description;
+
+                geometryLayers[item.id] = layer;
 
                 layer.bindPopup(`
                     <b>${item.name}</b><br>
                     ${item.description ?? ""}<br><br>
-                    <button onclick="openEditForm(${item.id}, '${item.name}', '${item.description ?? ""}')">Duzenle</button>
+                    <button onclick="openEditForm(${item.id})">Duzenle</button>
                     <button onclick="deleteGeometry(${item.id})">Sil</button>
+                    <button onclick="analyzeGeometry(${item.id})">Analiz Et</button>
                 `);
 
                 drawnItems.addLayer(layer);
@@ -185,7 +190,6 @@ function openEditForm(id, name, description) {
 
     document.getElementById("geometryName").value = name;
     document.getElementById("geometryDescription").value = description;
-
     document.getElementById("geometryForm").style.display = "block";
 }
 
@@ -206,6 +210,71 @@ async function deleteGeometry(id) {
         alert("Silme işlemi başarısız oldu.");
     }
 }
+
+// GEOMETRİK ANALİZ
+async function analyzeGeometry(id) {
+    const response = await fetch(`https://localhost:7220/api/geometries/${id}/contained`);
+    const results = await response.json();
+
+    resetLayerStyles();
+
+    const selectedLayer = geometryLayers[id];
+
+    if (selectedLayer && selectedLayer.setStyle) {
+        selectedLayer.setStyle({
+            color: "green",
+            weight: 5
+        });
+    }
+
+    results.forEach(item => {
+        const layer = geometryLayers[item.id];
+
+        if (layer && layer.setStyle) {
+            layer.setStyle({
+                color: "red",
+                weight: 5
+            });
+        }
+    });
+
+    showAnalysisPanel(results);
+}
+
+// Tüm katmanların stilini varsayılan hale getir
+function resetLayerStyles() {
+    Object.values(geometryLayers).forEach(layer => {
+        if (layer.setStyle) {
+            layer.setStyle({
+                color: "#3388ff",
+                weight: 3
+            });
+        }
+    });
+}
+//Analiz Sonuc Paneli Gösterimi
+function showAnalysisPanel(results) {
+    const panel = document.getElementById("analysisResult");
+    const content = document.getElementById("analysisContent");
+
+    if (results.length === 0) {
+        content.innerHTML = "<p>Bu alan icinde kayitli geometri bulunamadi.</p>";
+    } else {
+        content.innerHTML = `
+            <ul>
+                ${results.map(x => `
+                    <li>
+                        <strong>${x.name}</strong>
+                    </li>
+                `).join("")}
+            </ul>
+        `;
+    }
+
+    panel.style.display = "block";
+}
+
+loadGeometries();
 
 // GEOMETRİK DÜZENLEME (EDIT)
 map.on(L.Draw.Event.EDITED, async function (e) {
@@ -236,4 +305,3 @@ map.on(L.Draw.Event.EDITED, async function (e) {
     });
 });
 
-loadGeometries();

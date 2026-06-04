@@ -103,5 +103,31 @@ namespace MapApi.Services
 
             return true;    
         }
+
+        public async Task<List<AnalysisResultDto>> GetContainedGeometriesAsync(int polygonId)
+        {
+            //polygonu buluyoruz
+            var polygon = await _context.Geometries.FirstOrDefaultAsync(x=>x.Id == polygonId);
+
+            if (polygon == null)
+            {
+                return new List<AnalysisResultDto>();
+            }
+
+            //seçilen polygonun kendisi hariç polygonun içinde bulunan geometrileri buluyoruz
+            var geometries = await _context.Geometries
+                .Where(x => x.Id != polygonId && polygon.Geometry.Contains(x.Geometry))
+                .ToListAsync();
+
+            var result = geometries.Select(x => new AnalysisResultDto
+            {
+                Id = x.Id,
+                Name = x.Name,
+                Description = x.Description,
+                GeoJson = _geoJsonWriter.Write(x.Geometry) //Sonuçları GeoJSON formatında döndürüyoruz
+            }).ToList();
+
+            return result;
+        }
     }
 }

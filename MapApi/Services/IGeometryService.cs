@@ -8,5 +8,6 @@ namespace MapApi.Services
         Task<GeometryListDto> CreateAsync(CreateGeometryDto createGeometryDto);
         Task<bool> DeleteAsync(int id);
         Task<bool> UpdateGeometryAsync(int id, UpdateGeometryDto updateGeometryDto);
+        Task<List<AnalysisResultDto>> GetContainedGeometriesAsync(int polygonId);
     }
 }
