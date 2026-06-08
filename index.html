@@ -41,6 +41,32 @@
         <div id="analysisContent"></div>
     </div>
 
+    <div id="searchFilterPanel" class="search-filter-panel">
+        <h4>Harita Araçları</h4>
+
+        <label>Geometri Ara</label>
+        <input type="text" id="geometrySearchInput" placeholder="Örn: Okul">
+
+        <button id="searchGeometryButton">Ara</button>
+
+        <hr>
+
+        <label>
+            <input type="checkbox" class="geometry-type-filter" value="Point" checked>
+            Point
+        </label>
+
+        <label>
+            <input type="checkbox" class="geometry-type-filter" value="LineString" checked>
+            Polyline
+        </label>
+
+        <label>
+            <input type="checkbox" class="geometry-type-filter" value="Polygon" checked>
+            Polygon
+        </label>
+    </div>
+
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
     <script src="app.js"></script>
