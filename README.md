@@ -33,9 +33,9 @@ Geometriler GeoJSON formatında saklanır ve REST API üzerinden yönetilir. Pro
 
 ### Harita Servisleri
 
-* OpenStreetMap
-* Esri World Imagery
-* WMS Servisleri
+- OpenStreetMap taban haritası
+- Esri World Imagery uydu görüntüleri
+- TUCBS WMS servisleri
 
 ## Sistem Mimarisi
 
