@@ -6,16 +6,17 @@ Geometriler GeoJSON formatında saklanır ve REST API üzerinden yönetilir. Pro
 
 ## Özellikler
 
-* Nokta (`Point`), çizgi (`LineString`) ve alan (`Polygon`) çizme ve düzenleme
+* Nokta (Point), çizgi (LineString) ve alan (Polygon) çizme ve düzenleme
 * Geometri meta verisi (isim, açıklama) ile kayıt oluşturma
 * Geometri güncelleme ve silme işlemleri
 * GeoJSON tabanlı veri yönetimi
 * Geometri adına göre arama
-* Geometri tipine göre filtreleme
+* Geometri tipine göre filtreleme (Point, Polyline, Polygon)
 * Bir geometrinin içerisinde bulunan diğer geometrileri analiz etme
-* Analiz sonuçlarını harita üzerinde vurgulama
-* OpenStreetMap ve Uydu görüntüsü katmanları
-* WMS katman desteği
+* PostGIS / NetTopologySuite kullanılarak geometrik içerme (Contains) analizi
+* Analiz sonuçlarının harita üzerinde vurgulanması
+* OpenStreetMap ve uydu görüntüsü katmanları
+* WMS katman desteği (TUCBS)
 
 ## Kullanılan Teknolojiler
 
@@ -30,12 +31,18 @@ Geometriler GeoJSON formatında saklanır ve REST API üzerinden yönetilir. Pro
 ### Backend
 
 * ASP.NET Core Web API
+* Entity Framework Core
+
+### Veritabanı
+
+* PostgreSQL
+* PostGIS
 
 ### Harita Servisleri
 
-- OpenStreetMap taban haritası
-- Esri World Imagery uydu görüntüleri
-- TUCBS WMS servisleri
+* OpenStreetMap
+* Esri World Imagery
+* TUCBS WMS Servisleri
 
 ## Sistem Mimarisi
 
@@ -46,53 +53,60 @@ Frontend (Leaflet.js)
 ASP.NET Core Web API
         │
         ▼
-Veritabanı
+PostgreSQL + PostGIS
 ```
 
-## Hızlı Başlat
+## Kurulum
 
-1. Backend API'yi çalıştırın veya `API_URL` değerini güncelleyin (`app.js`).
-2. Proje dizinini bir statik sunucu ile yayınlayın:
+### Backend
+
+1. PostgreSQL ve PostGIS kurulumu yapılır.
+2. Veritabanı bağlantı bilgileri `appsettings.json` üzerinden güncellenir.
+3. ASP.NET Core Web API projesi çalıştırılır.
+
+### Frontend
+
+Proje dizininde aşağıdaki komut çalıştırılır:
 
 ```bash
 python -m http.server 5500
 ```
 
-3. Tarayıcı üzerinden uygulamayı açın:
+Ardından uygulama aşağıdaki adresten açılır:
 
 ```text
 http://localhost:5500
 ```
 
-## API Sözleşmesi
+## API Endpointleri
 
-Frontend varsayılan olarak aşağıdaki endpoint'i kullanır:
+Varsayılan API adresi:
 
 ```text
 https://localhost:7220/api/geometries
 ```
 
-### Endpointler
-
-| Method | Endpoint                         | Açıklama                         |
-| ------ | -------------------------------- | -------------------------------- |
-| GET    | `/api/geometries`                | Tüm geometrileri getirir         |
-| POST   | `/api/geometries`                | Yeni geometri oluşturur          |
-| PUT    | `/api/geometries/{id}`           | Geometri veya metadata günceller |
-| DELETE | `/api/geometries/{id}`           | Geometri siler                   |
-| GET    | `/api/geometries/{id}/contained` | İçerme analizi gerçekleştirir    |
+| Method | Endpoint                       | Açıklama                         |
+| ------ | ------------------------------ | -------------------------------- |
+| GET    | /api/geometries                | Tüm geometrileri getirir         |
+| POST   | /api/geometries                | Yeni geometri oluşturur          |
+| PUT    | /api/geometries/{id}           | Geometri veya metadata günceller |
+| DELETE | /api/geometries/{id}           | Geometri siler                   |
+| GET    | /api/geometries/{id}/contained | İçerme analizi gerçekleştirir    |
 
 ## Dosya Yapısı
 
 ```text
 MapProject
 │
+├── MapApi
+│
 ├── index.html
 ├── app.js
 ├── style.css
 ```
 
-* **index.html** → Arayüz ve harita bileşenleri
+* **index.html** → Kullanıcı arayüzü ve harita bileşenleri
 * **app.js** → Harita işlemleri, CRUD operasyonları ve mekânsal analiz mantığı
 * **style.css** → Uygulama stilleri
 
@@ -105,6 +119,8 @@ Bu proje kapsamında;
 * REST API entegrasyonu
 * Katman yönetimi
 * Geometri CRUD işlemleri
+* WMS servis entegrasyonu
 * Temel mekânsal analiz uygulamaları
+* PostGIS ve NetTopologySuite kullanımı
 
 gerçekleştirilmiştir.
